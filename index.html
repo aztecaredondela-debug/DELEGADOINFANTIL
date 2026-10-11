@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e63946">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Delegado Digital · Balonmano</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--c1:#e63946;--c2:#ffb703;--bg:#0f172a;--card:#1e293b;--tx:#f8fafc;--fs:15px;--cw:140px;--ff:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:var(--fs)/1.3 var(--ff);min-height:100vh}
+header{background:linear-gradient(135deg,var(--c1),color-mix(in srgb,var(--c1) 55%,#000));padding:8px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 4px 18px #0006}
+.logo{width:46px;height:46px;border-radius:50%;background:#fff3 center/cover;display:grid;place-items:center;font-size:2rem;cursor:pointer;border:3px solid var(--c2);flex:none}
+.titles{flex:1;min-width:200px}
+.titles input{display:block;width:100%;background:transparent;border:0;color:#fff;font-family:inherit;outline:0}
+#t1{font-size:1.5em;font-weight:900;letter-spacing:.5px}
+#t2{font-size:1em;opacity:.85}
+.score{display:flex;align-items:center;gap:10px;background:#0006;border-radius:18px;padding:8px 14px}
+.score div{text-align:center}
+.score b{display:block;font-size:1.7em;line-height:1;color:var(--c2)}
+.score small{opacity:.8;font-size:.7em;text-transform:uppercase;letter-spacing:1px}
+.score button{width:34px;height:34px;border-radius:50%;border:0;background:#fff2;color:#fff;font-size:1.2em;font-weight:700}
+.vs{font-weight:900;opacity:.6}
+.score input{width:110px;background:transparent;border:0;border-bottom:1px dashed #fff6;color:#fff;text-align:center;font-family:inherit;font-size:.8em;outline:0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:8px 16px;align-items:center}
+.btn{border:0;border-radius:12px;padding:9px 13px;font:700 1em var(--ff);color:#111;background:var(--c2);box-shadow:0 3px 0 #0005;cursor:pointer}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn.alt{background:var(--card);color:var(--tx)}
+.btn.xl{background:#22c55e;color:#04210f}
+.btn.red{background:#ef4444;color:#fff}
+.bar .sp{flex:1}
+#date{background:var(--card);color:var(--tx);border:0;border-radius:12px;padding:10px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));gap:10px;padding:4px 16px 20px}
+.card{background:var(--card);border-radius:22px;overflow:hidden;position:relative;box-shadow:0 8px 20px #0005;border:2px solid transparent;animation:pop .25s}
+.card.flash{border-color:var(--c2)}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+.photo{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;aspect-ratio:1/.8;background:#0003 center/cover;display:grid;place-items:center;font-size:2em;cursor:pointer;opacity:1}
+.photo span{opacity:.5}
+.num{flex:none;background:var(--c1);color:#fff;border-radius:10px;padding:1px 4px;display:flex;align-items:center;margin-left:8px}
+.num i{font-style:normal;font-weight:700;padding-left:4px;font-size:.8em}
+.num input{width:1.9em;background:transparent;border:0;color:#fff;font:900 .9em var(--ff);text-align:center;outline:0}
+.del{display:none;position:absolute;right:8px;top:8px;width:40px;height:40px;border-radius:50%;border:0;background:#000a;color:#fff;font-size:1.1em;font-weight:700}
+.name{flex:1;min-width:0;width:100%;background:transparent;border:0;color:var(--tx);text-align:center;font:800 1em var(--ff);padding:6px 6px 2px;outline:0}
+.name::placeholder{opacity:.4}
+.num input::placeholder{color:#fff;opacity:.6;font-size:.7em}
+.goalrow{display:flex;gap:6px;padding:4px 8px 8px;align-items:stretch}
+.gol{flex:1;border:0;border-radius:16px;background:linear-gradient(180deg,var(--c2),color-mix(in srgb,var(--c2) 70%,#000));color:#111;font:900 1em var(--ff);padding:8px 4px;display:flex;justify-content:center;align-items:center;gap:8px;box-shadow:0 4px 0 #0006}
+.gol:active{transform:translateY(3px);box-shadow:none}
+.gol em{font-style:normal;background:#111;color:var(--c2);border-radius:12px;min-width:1.9em;padding:2px 6px;font-size:1.2em}
+.minus{width:38px;border:0;border-radius:16px;background:#fff1;color:var(--tx);font-size:1.4em;font-weight:700}
+.empty{grid-column:1/-1;text-align:center;opacity:.6;padding:50px 10px}
+dialog{border:0;border-radius:22px;background:var(--card);color:var(--tx);width:min(94vw,520px);padding:0;font:inherit}
+dialog::backdrop{background:#000a}
+.pn{padding:20px}
+.pn h2{margin:0 0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #fff1}
+.row input[type=color]{width:56px;height:38px;border:0;background:none;padding:0}
+.row input[type=range]{width:55%}
+.row select,.row input[type=text]{background:var(--bg);color:var(--tx);border:0;border-radius:10px;padding:9px;font:inherit}
+.presets{display:flex;gap:8px;flex-wrap:wrap;padding:8px 0}
+.presets button{width:44px;height:44px;border-radius:50%;border:3px solid #fff4}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#000d;color:#fff;padding:12px 20px;border-radius:30px;opacity:0;transition:.3s;pointer-events:none;z-index:9}
+#toast.on{opacity:1}
+input[type=file]{display:none}
+.opts{display:flex;flex-direction:column;gap:10px}
+.num.dup{outline:3px dashed #fff}
+.card.showdel .del{display:block}
+.card.pressing .photo{filter:brightness(.55);transition:filter 3s linear}
+.info{display:flex;align-items:center;padding-top:4px}
+#viewDlg{width:min(94vw,640px)}
+.sc{max-height:60vh;overflow:auto}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:.75em;opacity:.7;text-align:left;padding:6px}
+.tbl td{padding:8px 6px;border-bottom:1px solid #fff1}
+.tbl .n{display:inline-block;min-width:2em;text-align:center;background:var(--c1);color:#fff;border-radius:10px;padding:2px 6px;font-weight:900}
+.tbl .g{font-weight:900;color:var(--c2);font-size:1.25em;text-align:right}
+.bg{height:9px;border-radius:5px;background:var(--c2);min-width:3px}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #fff1}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" id="logo" title="Toca para cambiar el escudo">🤾</div>
+  <div class="titles"><input id="t1" placeholder="Nombre del equipo"><input id="t2" placeholder="Categoría / temporada"></div>
+  <div class="score">
+    <div><small id="lblMe">Nosotros</small><b id="tot">0</b></div>
+    <span class="vs">–</span>
+    <div><input id="rivalName" placeholder="Rival"><b id="rv">0</b>
+      <div><button id="rm">−</button> <button id="rp">+</button></div></div>
+  </div>
+</header>
+<div class="bar">
+  <button class="btn" id="add">➕ Añadir jugador</button>
+  <button class="btn alt" id="bUndo">↩️ Deshacer gol</button>
+  <input type="date" id="date" title="Fecha del partido">
+  <span class="sp"></span>
+  <button class="btn xl" id="xls">📥 Descargar Excel</button>
+  <button class="btn alt" id="bView">📊 Goles</button><button class="btn" id="bSave">💾 Guardar partido</button><button class="btn alt" id="bAcc">🏆 Acumulado</button>
+  <button class="btn alt" id="reset">🔄 A 0</button>
+  <button class="btn alt" id="cfg">🎨 Ajustes</button>
+</div>
+<main class="grid" id="grid"></main>
+
+<dialog id="dlg"><div class="pn">
+  <h2>🎨 Personalizar</h2>
+  <div class="presets" id="presets"></div>
+  <div class="row"><span>Color principal</span><input type="color" data-k="c1"></div>
+  <div class="row"><span>Color botón GOL</span><input type="color" data-k="c2"></div>
+  <div class="row"><span>Fondo</span><input type="color" data-k="bg"></div>
+  <div class="row"><span>Tarjetas</span><input type="color" data-k="card"></div>
+  <div class="row"><span>Texto</span><input type="color" data-k="tx"></div>
+  <div class="row"><span>Tamaño de texto</span><input type="range" min="12" max="26" data-k="fs"></div>
+  <div class="row"><span>Tamaño de tarjetas</span><input type="range" min="100" max="320" data-k="cw"></div>
+  <div class="row"><span>Tipo de letra</span><select data-k="ff">
+    <option value="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">Moderna</option>
+    <option value="Georgia,'Times New Roman',serif">Clásica</option>
+    <option value="'Trebuchet MS',Verdana,sans-serif">Redondeada</option>
+    <option value="Impact,'Arial Black',sans-serif">Deportiva</option>
+    <option value="'Courier New',monospace">Máquina</option></select></div>
+  <div class="row"><span>Texto "Nosotros"</span><input type="text" id="lblIn" maxlength="14"></div>
+  <div class="row"><span>Quitar escudo</span><button class="btn alt" id="rmLogo">Quitar</button></div>
+  <div class="row"><span>Ordenar por dorsal</span><button class="btn alt" id="srt">Ordenar</button></div>
+  <div class="row"><span>Copia de seguridad</span><span><button class="btn alt" id="bkE">Exportar</button> <button class="btn alt" id="bkI">Importar</button></span></div>
+  <div style="text-align:right;margin-top:14px"><button class="btn alt" id="rst">Restaurar colores</button> <button class="btn" id="close">Listo ✔</button></div>
+</div></dialog>
+<dialog id="photoDlg"><div class="pn"><h2>📷 Foto del jugador</h2><div class="opts"><button class="btn" id="pCam">📷 Hacer foto con la cámara</button><button class="btn" id="pFile">🖼️ Subir desde archivo</button><button class="btn red" id="pDel">🗑️ Quitar foto</button><button class="btn alt" id="pNo">Cancelar</button></div></div></dialog>
+<dialog id="viewDlg"><div class="pn"><h2 id="vT"></h2><div class="sc" id="vB"></div><div style="text-align:right;margin-top:12px"><button class="btn alt" id="vS" style="display:none">📤 Compartir</button> <button class="btn xl" id="vX" style="display:none">📥 Excel</button> <button class="btn" id="vC">Cerrar</button></div></div></dialog>
+<dialog id="askDlg"><div class="pn"><h2 id="askMsg"></h2><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn alt" id="askNo">Cancelar</button><button class="btn red" id="askYes">Sí</button></div></div></dialog>
+<input type="file" id="fp" accept="image/*"><input type="file" id="fc" accept="image/*" capture="user"><input type="file" id="fl" accept="image/*"><input type="file" id="fb" accept=".json,application/json">
+<div id="toast"></div>
+
+<script>
+const KEY="delegadoDigital_v1";
+const DEF={c1:"#e63946",c2:"#ffb703",bg:"#0f172a",card:"#1e293b",tx:"#f8fafc",fs:15,cw:140,ff:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif"};
+const PRE=[["#e63946","#ffb703","#0f172a","#1e293b"],["#1d4ed8","#22d3ee","#0b1220","#172036"],["#16a34a","#facc15","#06140b","#12261a"],["#7c3aed","#f472b6","#140a24","#241639"],["#f8fafc","#e63946","#e2e8f0","#ffffff"]];
+let S={cfg:{...DEF},t1:"SAR Redondela",t2:"Infantil · Balonmano",lbl:"Nosotros",rival:"",rv:0,date:"",logo:"",players:[],matches:[]};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));S.cfg=Object.assign({...DEF},S.cfg);if(S.cfg.cw>=190)S.cfg.cw=140}catch(e){}
+const $=id=>document.getElementById(id);
+let tm;function save(){clearTimeout(tm);tm=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast("⚠️ No se pudo guardar (fotos muy pesadas)")}},200)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2200)}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function applyCfg(){const r=document.documentElement.style,c=S.cfg;
+ r.setProperty("--c1",c.c1);r.setProperty("--c2",c.c2);r.setProperty("--bg",c.bg);r.setProperty("--card",c.card);r.setProperty("--tx",c.tx);
+ r.setProperty("--fs",c.fs+"px");r.setProperty("--cw",c.cw+"px");r.setProperty("--ff",c.ff);
+ document.querySelectorAll("#dlg [data-k]").forEach(i=>i.value=c[i.dataset.k])}
+function total(){return S.players.reduce((a,p)=>a+p.g,0)}
+function head(){$("t1").value=S.t1;$("t2").value=S.t2;$("lblMe").textContent=S.lbl;$("lblIn").value=S.lbl;
+ $("rivalName").value=S.rival;$("rv").textContent=S.rv;$("tot").textContent=total();$("date").value=S.date;
+ const l=$("logo");l.style.backgroundImage=S.logo?`url(${S.logo})`:"";l.textContent=S.logo?"":"🤾"}
+function render(){const g=$("grid");
+ if(!S.players.length){g.innerHTML='<div class="empty"><div style="font-size:3em">🤾‍♂️</div>Aún no hay jugadores.<br>Pulsa <b>➕ Añadir jugador</b> para empezar.</div>';return}
+ g.innerHTML=S.players.map(p=>`<div class="card" data-id="${p.id}">
+  <div class="photo" style="${p.photo?`background-image:url(${p.photo})`:""}" data-a="photo">${p.photo?"":"<span>📷</span>"}</div>
+  <div class="info"><div class="num"><i>#</i><input inputmode="numeric" placeholder="Nº" value="${esc(p.n)}" data-a="n" maxlength="3"></div>
+  <button class="del" data-a="del" aria-label="Eliminar">✕</button>
+  <input class="name" placeholder="Nombre" value="${esc(p.name)}" data-a="name"></div>
+  <div class="goalrow"><button class="gol" data-a="gol">⚽ GOL <em>${p.g}</em></button><button class="minus" data-a="min">−</button></div></div>`).join("")}
+function all(){head();render();markDup();save()}
+const find=e=>S.players.find(p=>p.id==e.closest(".card").dataset.id);
+$("grid").addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;if(!b.closest(".card"))return;const p=find(b);
+ if(a=="gol"){p.g++;hist.push(p.id);b.querySelector("em").textContent=p.g;const c=b.closest(".card");c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),250);$("tot").textContent=total();save();if(navigator.vibrate)navigator.vibrate(30)}
+ else if(a=="min"){if(p.g>0){p.g--;b.parentNode.querySelector("em").textContent=p.g;$("tot").textContent=total();save()}}
+ else if(a=="del"){ask("¿Eliminar a "+(p.name||"este jugador")+"?",()=>{S.players=S.players.filter(x=>x!==p);all()},"Sí, eliminar")}
+ else if(a=="photo"){if(lp){lp=false;return}pid=p.id;openPhoto(p)}});
+$("grid").addEventListener("input",e=>{const a=e.target.dataset.a;if(!a)return;const p=find(e.target);if(a=="n"){p.n=e.target.value;markDup()}if(a=="name")p.name=e.target.value;save()});
+let pid=null;
+function shrink(file,size,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d");
+ const m=Math.min(im.width,im.height);x.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,size,size);cb(c.toDataURL("image/jpeg",.82))};im.src=r.result};r.readAsDataURL(file)}
+$("fp").onchange=$("fc").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;shrink(f,360,d=>{const p=S.players.find(x=>x.id==pid);if(p){p.photo=d;all()}})};
+$("fl").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;shrink(f,160,d=>{S.logo=d;all()})};
+$("logo").onclick=()=>$("fl").click();
+let askFn=null;
+function ask(m,fn,lbl){$("askMsg").textContent=m;$("askYes").textContent=lbl||"Sí";askFn=fn;$("askDlg").showModal()}
+$("askYes").onclick=()=>{$("askDlg").close();if(askFn)askFn()};
+$("askNo").onclick=()=>$("askDlg").close();
+function openPhoto(p){$("pDel").style.display=p.photo?"":"none";$("photoDlg").showModal()}
+$("pCam").onclick=()=>{$("photoDlg").close();$("fc").click()};
+$("pFile").onclick=()=>{$("photoDlg").close();$("fp").click()};
+$("pDel").onclick=()=>{const p=S.players.find(x=>x.id==pid);if(p)p.photo="";$("photoDlg").close();all()};
+$("pNo").onclick=()=>$("photoDlg").close();
+let vFn=null;
+function view(t,h,xf){$("vT").textContent=t;$("vB").innerHTML=h;vFn=xf||null;$("vX").style.display=xf?"":"none";$("vS").style.display="none";$("viewDlg").showModal()}
+$("vC").onclick=()=>$("viewDlg").close();$("vX").onclick=()=>vFn&&vFn();
+const byNum=(a,b)=>(parseInt(a.n)||999)-(parseInt(b.n)||999);
+const nb=n=>`<span class="n">${esc(n||"–")}</span>`;
+$("bView").onclick=()=>{
+ const r=[...S.players].sort((a,b)=>b.g-a.g||byNum(a,b)),mx=Math.max(1,...r.map(p=>p.g));
+ view("📊 Goles del partido"+(S.rival?" vs "+S.rival:""),r.length?`<table class="tbl"><tr><th>Dorsal</th><th>Jugador</th><th></th><th style="text-align:right">Goles</th></tr>`+r.map(p=>`<tr><td>${nb(p.n)}</td><td>${esc(p.name||"(sin nombre)")}</td><td style="width:28%"><div class="bg" style="width:${p.g/mx*100}%"></div></td><td class="g">${p.g}</td></tr>`).join("")+`<tr><td></td><td><b>TOTAL</b></td><td></td><td class="g">${total()}</td></tr></table>`:"<p>No hay jugadores.</p>");$("vS").style.display=""};
+$("bSave").onclick=()=>{
+ if(!S.players.length){toast("Añade jugadores primero");return}
+ ask("¿Guardar el partido"+(S.rival?" vs "+S.rival:"")+" ("+total()+" goles) y poner los goles a 0 para el siguiente?",()=>{
+  S.matches.push({id:Date.now(),date:S.date||new Date().toISOString().slice(0,10),rival:S.rival,rv:S.rv,lbl:S.lbl,pl:S.players.map(p=>({id:p.id,n:p.n,name:p.name,g:p.g}))});
+  S.players.forEach(p=>p.g=0);S.rv=0;S.rival="";S.date="";all();toast("💾 Partido guardado")},"Sí, guardar")};
+function acc(){const m=new Map();
+ S.matches.forEach(x=>x.pl.forEach(p=>{let a=m.get(p.id);if(!a){a={id:p.id,g:0,pj:0};m.set(p.id,a)}a.n=p.n;a.name=p.name;a.g+=p.g;a.pj++}));
+ S.players.forEach(p=>{let a=m.get(p.id);if(!a){a={id:p.id,g:0,pj:0};m.set(p.id,a)}a.n=p.n;a.name=p.name});
+ return [...m.values()]}
+$("bAcc").onclick=()=>{
+ const r=acc().sort((a,b)=>b.g-a.g||byNum(a,b)),M=S.matches.length;
+ let h=`<p style="opacity:.75;margin-top:0">Suma de los partidos guardados: ${M}</p>`;
+ h+=r.length?`<table class="tbl"><tr><th>Dorsal</th><th>Jugador</th><th style="text-align:center">Partidos</th><th style="text-align:right">Goles</th></tr>`+r.map(p=>`<tr><td>${nb(p.n)}</td><td>${esc(p.name||"(sin nombre)")}</td><td style="text-align:center">${p.pj}</td><td class="g">${p.g}</td></tr>`).join("")+`</table>`:"<p>Aún no hay jugadores.</p>";
+ if(M)h+=`<h3>Partidos guardados</h3>`+S.matches.map(x=>`<div class="mrow"><span>${esc(x.date)} · ${esc(x.lbl||"Nosotros")} <b>${x.pl.reduce((s,p)=>s+p.g,0)}</b> – <b>${x.rv}</b> ${esc(x.rival||"Rival")}</span>${x.id==S.matches[S.matches.length-1].id?`<button class="btn alt" data-res="${x.id}" style="padding:6px 10px">↩️ Reabrir</button>`:""}<button class="btn red" data-del="${x.id}" style="padding:6px 10px">✕</button></div>`).join("");
+ view("🏆 Acumulado de goles",h,M?xlsAcc:null)};
+$("vB").onclick=e=>{const rs=e.target.closest("[data-res]");if(rs){const m=S.matches.find(x=>x.id==rs.dataset.res);if(m&&S.players.every(p=>!p.g)){m.pl.forEach(q=>{let p=S.players.find(x=>x.id==q.id);if(!p){p={id:q.id,n:q.n,name:q.name,photo:"",g:0};S.players.push(p)}p.g=q.g});S.rival=m.rival;S.rv=m.rv;S.date=m.date;S.matches=S.matches.filter(x=>x!==m);$("viewDlg").close();all();toast("Partido reabierto")}else toast("Pon los goles a 0 antes de reabrir");return}const b=e.target.closest("[data-del]");if(!b)return;$("viewDlg").close();
+ ask("¿Eliminar este partido guardado?",()=>{S.matches=S.matches.filter(x=>x.id!=b.dataset.del);save();$("bAcc").click()},"Sí, eliminar")};
+async function dl(aoa,cols,nm){try{const ws=XLSX.utils.aoa_to_sheet(aoa);ws["!cols"]=cols;const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Acumulado");const data=XLSX.write(wb,{type:"array",bookType:"xlsx"});let d=null;try{d=await claude.use("downloads")}catch(e){}
+ if(d){await d.save({filename:nm,data});toast("📥 Excel listo")}else{const u=URL.createObjectURL(new Blob([data]));const a=document.createElement("a");a.href=u;a.download=nm;a.click();toast("📥 Descargando…")}}catch(e){if(e&&e.code=="declined")return;toast("No se pudo crear el Excel")}}
+function xlsAcc(){const r=acc().sort(byNum);
+ const aoa=[[S.t1+" · Acumulado de goles"],[],["Dorsal","Nombre",...S.matches.map(x=>x.date+(x.rival?" vs "+x.rival:"")),"TOTAL","Partidos"],
+  ...r.map(p=>[p.n===""?"":(isNaN(+p.n)?p.n:+p.n),p.name||"(sin nombre)",...S.matches.map(x=>{const q=x.pl.find(z=>z.id==p.id);return q?q.g:""}),p.g,p.pj])];
+ dl(aoa,[{wch:10},{wch:28}],(S.t1||"equipo").replace(/[^\w\-]+/g,"_")+"_acumulado.xlsx")}
+$("rmLogo").onclick=()=>{S.logo="";all()};
+$("add").onclick=()=>{S.players.push({id:Date.now(),n:"",name:"",photo:"",g:0});all();const n=document.querySelectorAll(".name");n[n.length-1].focus();n[n.length-1].scrollIntoView({behavior:"smooth",block:"center"})};
+$("t1").oninput=e=>{S.t1=e.target.value;save()};$("t2").oninput=e=>{S.t2=e.target.value;save()};
+$("rivalName").oninput=e=>{S.rival=e.target.value;save()};$("date").onchange=e=>{S.date=e.target.value;save()};
+$("rp").onclick=()=>{S.rv++;head();save()};$("rm").onclick=()=>{if(S.rv>0)S.rv--;head();save()};
+$("lblIn").oninput=e=>{S.lbl=e.target.value||"Nosotros";$("lblMe").textContent=S.lbl;save()};
+$("reset").onclick=()=>ask("¿Poner a 0 los goles de todos los jugadores y del rival?",()=>{S.players.forEach(p=>p.g=0);S.rv=0;all();toast("Marcador a cero")},"Sí, poner a 0");
+$("cfg").onclick=()=>$("dlg").showModal();$("close").onclick=()=>$("dlg").close();
+document.querySelectorAll("#dlg [data-k]").forEach(i=>i.oninput=()=>{const k=i.dataset.k;S.cfg[k]=(k=="fs"||k=="cw")?+i.value:i.value;applyCfg();save()});
+$("rst").onclick=()=>{S.cfg={...DEF};applyCfg();save()};
+$("presets").innerHTML=PRE.map((p,i)=>`<button data-i="${i}" style="background:linear-gradient(135deg,${p[0]} 50%,${p[1]} 50%)"></button>`).join("");
+$("presets").onclick=e=>{const b=e.target.closest("button");if(!b)return;const p=PRE[b.dataset.i];
+ Object.assign(S.cfg,{c1:p[0],c2:p[1],bg:p[2],card:p[3],tx:b.dataset.i==4?"#0f172a":"#f8fafc"});applyCfg();save()};
+$("xls").onclick=async()=>{
+ if(!S.players.length){toast("Añade jugadores primero");return}
+ document.querySelectorAll(".card").forEach(c=>{const q=S.players.find(x=>x.id==c.dataset.id);if(q){q.n=c.querySelector('[data-a="n"]').value.trim();q.name=c.querySelector(".name").value}});save();
+ const rows=[...S.players].sort((a,b)=>(parseInt(a.n)||999)-(parseInt(b.n)||999));
+ const aoa=[[S.t1+" · "+S.t2],["Partido:",S.rival?S.lbl+" vs "+S.rival:"",  "Fecha:",S.date],[],["Dorsal","Nombre","Goles"],
+  ...rows.map(p=>[p.n===""?"":(isNaN(+p.n)?p.n:+p.n),p.name||"(sin nombre)",p.g]),[],["","TOTAL EQUIPO",total()]];
+ if(S.rival||S.rv)aoa.push(["","Goles rival",S.rv]);
+ const nm=(S.t1||"equipo").replace(/[^\w\-]+/g,"_")+"_goles"+(S.date?"_"+S.date:"")+".xlsx";
+ try{
+  const ws=XLSX.utils.aoa_to_sheet(aoa);ws["!cols"]=[{wch:10},{wch:28},{wch:10}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Goles");
+  const data=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+  let d=null;try{d=await claude.use("downloads")}catch(e){}
+  if(d){await d.save({filename:nm,data});toast("📥 Excel listo")}
+  else{const u=URL.createObjectURL(new Blob([data]));const a=document.createElement("a");a.href=u;a.download=nm;a.click();toast("📥 Descargando…")}
+ }catch(e){if(e&&e.code=="declined")return;toast("No se pudo crear el Excel")}};
+let hist=[];
+function dup(p){return p.n!==""&&S.players.some(q=>q!==p&&q.n===p.n)}
+function markDup(){document.querySelectorAll(".card").forEach(c=>{const p=S.players.find(x=>x.id==c.dataset.id);const n=c.querySelector(".num");if(p&&n)n.classList.toggle("dup",dup(p))})}
+function flush(){clearTimeout(tm);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+addEventListener("pagehide",flush);
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+let wl=null;async function wake(){try{if(navigator.wakeLock&&document.visibilityState=="visible")wl=await navigator.wakeLock.request("screen")}catch(e){}}
+wake();document.addEventListener("visibilitychange",()=>{if(document.visibilityState=="visible")wake();else flush()});
+$("bUndo").onclick=()=>{let p;while(hist.length&&!(p=S.players.find(x=>x.id==hist[hist.length-1]&&x.g>0)))hist.pop();if(!p){toast("Nada que deshacer");return}hist.pop();p.g--;all();toast("↩️ Gol quitado a "+(p.name||"#"+p.n))};
+$("srt").onclick=()=>{S.players.sort(byNum);all();toast("Ordenados por dorsal")};
+$("vS").onclick=async()=>{const r=[...S.players].filter(p=>p.g>0).sort((a,b)=>b.g-a.g);
+ const t="🤾 "+S.t1+"\n"+S.lbl+" "+total()+" - "+S.rv+" "+(S.rival||"Rival")+(S.date?"\n"+S.date:"")+"\n\n"+r.map(p=>"#"+(p.n||"-")+" "+(p.name||"?")+": "+p.g).join("\n");
+ try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e.name=="AbortError")return}
+ try{await navigator.clipboard.writeText(t);toast("Copiado: pégalo en WhatsApp")}catch(e){window.open("https://wa.me/?text="+encodeURIComponent(t))}};
+$("bkE").onclick=async()=>{const nm="copia_delegado_"+new Date().toISOString().slice(0,10)+".json";const data=JSON.stringify({app:"delegado",ver:2,S});let d=null;try{d=await claude.use("downloads")}catch(e){}
+ try{if(d){await d.save({filename:nm,data});toast("💾 Copia guardada")}else{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));a.download=nm;a.click();toast("💾 Copia descargada")}}catch(e){}};
+$("bkI").onclick=()=>$("fb").click();
+$("fb").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(j.app!="delegado"||!j.S)throw 0;$("dlg").close();ask("Esto sustituirá todos los datos actuales por los de la copia. ¿Continuar?",()=>{S=Object.assign(S,j.S);S.cfg=Object.assign({...DEF},S.cfg);S.matches=S.matches||[];applyCfg();all();flush();toast("✅ Copia restaurada")},"Sí, restaurar")}catch(x){toast("Archivo no válido")}};r.readAsText(f)};
+let lp=false,lpt=null;
+$("grid").addEventListener("pointerdown",e=>{const ph=e.target.closest(".photo");if(!ph)return;const c=ph.closest(".card");lp=false;c.classList.add("pressing");clearTimeout(lpt);
+ lpt=setTimeout(()=>{lp=true;c.classList.remove("pressing");c.classList.add("showdel");if(navigator.vibrate)navigator.vibrate(60);setTimeout(()=>c.classList.remove("showdel"),6000)},3000)});
+["pointerup","pointercancel"].forEach(t=>$("grid").addEventListener(t,()=>{clearTimeout(lpt);document.querySelectorAll(".pressing").forEach(c=>c.classList.remove("pressing"))}));
+$("grid").addEventListener("contextmenu",e=>{if(e.target.closest(".photo"))e.preventDefault()});
+applyCfg();all();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
